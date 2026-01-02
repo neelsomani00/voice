@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Voice Assistant</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px; background-color: #f4f7f6; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { color: #333; margin-top: 0; text-align: center; }
+        textarea { width: 100%; height: 180px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; resize: none; margin-bottom: 15px; }
+        .controls { display: flex; flex-direction: column; gap: 12px; }
+        .row { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+        select, button { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; }
+        select { flex-grow: 1; }
+        button { background-color: #007bff; color: white; border: none; font-weight: bold; transition: 0.2s; }
+        button:hover { background-color: #0056b3; }
+        button#start-stt.recording { background-color: #dc3545; animation: pulse 1.5s infinite; }
+        .hint { font-size: 12px; color: #666; background: #eef; padding: 10px; border-radius: 5px; margin-bottom: 10px; line-height: 1.4; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Voice Command Studio</h2>
+    
+    <div class="hint">
+        <strong>Punctuation Commands:</strong> Say "Question Mark" (?), "Comma" (,), "Exclamation Point" (!), or "New Line".
+    </div>
+
+    <textarea id="text-box" placeholder="Your text will appear here..."></textarea>
+    
+    <div class="controls">
+        <div class="row">
+            <label>Voice:</label>
+            <select id="voice-select"><option>Loading voices...</option></select>
+        </div>
+
+        <button id="start-stt">🎤 Start Listening</button>
+        <button id="start-tts">🔊 Play Audio</button>
+        <button id="clear-btn" style="background: #6c757d;">🗑️ Clear Text</button>
+    </div>
+</div>
+
+<script>
+    const textBox = document.getElementById('text-box');
+    const voiceSelect = document.getElementById('voice-select');
+    const sttBtn = document.getElementById('start-stt');
+    const clearBtn = document.getElementById('clear-btn');
+
+    // --- 1. TEXT TO SPEECH (TTS) LOGIC ---
+    let voices = [];
+    function populateVoiceList() {
+        voices = window.speechSynthesis.getVoices();
+        voiceSelect.innerHTML = '';
+        voices.forEach((voice, i) => {
+            const option = document.createElement('option');
+            option.textContent = `${voice.name} (${voice.lang})`;
+            option.value = i;
+            voiceSelect.appendChild(option);
+        });
+    }
+
+    // Load voices
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+    populateVoiceList();
+
+    document.getElementById('start-tts').onclick = () => {
+        if (textBox.value.trim() === "") return;
+        const utterance = new SpeechSynthesisUtterance(textBox.value);
+        utterance.voice = voices[voiceSelect.value];
+        window.speechSynthesis.speak(utterance);
+    };
+
+    // --- 2. SPEECH TO TEXT (STT) WITH FIXED PUNCTUATION ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        let isRecording = false;
+
+        sttBtn.onclick = () => {
+            if (!isRecording) {
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+        };
+
+        recognition.onstart = () => {
+            isRecording = true;
+            sttBtn.innerText = "🛑 Stop Listening";
+            sttBtn.classList.add('recording');
+        };
+
+        recognition.onend = () => {
+            isRecording = false;
+            sttBtn.innerText = "🎤 Start Listening";
+            sttBtn.classList.remove('recording');
+        };
+
+        recognition.onresult = (event) => {
+            let transcript = event.results[event.results.length - 1][0].transcript;
+            
+            // Apply Punctuation Logic
+            let text = transcript.toLowerCase().trim();
+
+            const replacements = [
+                { regex: /\bquestion mark\b/g, symbol: "?" },
+                { regex: /\bcomma\b/g, symbol: "," },
+                { regex: /\bexclamation mark\b/g, symbol: "!" },
+                { regex: /\bexclamation point\b/g, symbol: "!" },
+                { regex: /\bperiod\b/g, symbol: "." },
+                { regex: /\bfull stop\b/g, symbol: "." },
+                { regex: /\bnew line\b/g, symbol: "\n" }
+            ];
+
+            replacements.forEach(item => {
+                text = text.replace(item.regex, item.symbol);
+            });
+
+            // Clean up: Remove space before punctuation (e.g., "how are you ?" -> "how are you?")
+            text = text.replace(/\s+([?.!,])/g, '$1');
+
+            // Capitalize first letter of the result
+            text = text.charAt(0).toUpperCase() + text.slice(1);
+
+            // Append to existing text
+            const separator = (textBox.value.length > 0 && !textBox.value.endsWith('\n')) ? " " : "";
+            textBox.value += separator + text;
+        };
+    }
+
+    // --- 3. UTILITY ---
+    clearBtn.onclick = () => {
+        textBox.value = "";
+    };
+
+</script>
+
+</body>
+</html>
