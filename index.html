@@ -3,43 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Voice Assistant</title>
+    <title>Responsive Voice Studio</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px; background-color: #f4f7f6; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h2 { color: #333; margin-top: 0; text-align: center; }
-        textarea { width: 100%; height: 180px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; resize: none; margin-bottom: 15px; }
-        .controls { display: flex; flex-direction: column; gap: 12px; }
-        .row { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
-        select, button { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; }
-        select { flex-grow: 1; }
-        button { background-color: #007bff; color: white; border: none; font-weight: bold; transition: 0.2s; }
-        button:hover { background-color: #0056b3; }
-        button#start-stt.recording { background-color: #dc3545; animation: pulse 1.5s infinite; }
-        .hint { font-size: 12px; color: #666; background: #eef; padding: 10px; border-radius: 5px; margin-bottom: 10px; line-height: 1.4; }
+        :root {
+            --primary: #007bff;
+            --danger: #dc3545;
+            --bg: #f8f9fa;
+            --text: #333;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px; 
+            background-color: var(--bg); 
+            color: var(--text);
+            margin: 0;
+        }
+
+        .container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            width: 100%; 
+            max-width: 600px; 
+            box-sizing: border-box;
+        }
+
+        h2 { text-align: center; margin-bottom: 20px; font-weight: 600; }
+
+        .hint-box {
+            background: #e7f3ff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        textarea { 
+            width: 100%; 
+            height: 250px; 
+            padding: 15px; 
+            border: 2px solid #eee; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            resize: none; 
+            transition: border 0.3s;
+        }
+
+        textarea:focus { border-color: var(--primary); outline: none; }
+
+        .controls { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
+
+        .full-width { grid-column: span 2; }
+
+        label { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; display: block; }
+
+        select, button { 
+            padding: 14px; 
+            border-radius: 10px; 
+            border: 1px solid #ddd; 
+            font-size: 14px; 
+            cursor: pointer; 
+            width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button { 
+            background-color: var(--primary); 
+            color: white; 
+            border: none; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-secondary { background-color: #6c757d; }
+        .btn-danger { background-color: var(--danger); }
+
+        #start-stt.recording { 
+            background-color: var(--danger); 
+            animation: pulse 1.5s infinite; 
+        }
+
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {
+            .container { padding: 15px; border-radius: 0; min-height: 100vh; }
+            textarea { height: 200px; }
+            .controls { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Voice Command Studio</h2>
+    <h2>Voice Studio</h2>
     
-    <div class="hint">
-        <strong>Punctuation Commands:</strong> Say "Question Mark" (?), "Comma" (,), "Exclamation Point" (!), or "New Line".
+    <div class="hint-box">
+        <strong>Commands:</strong> "Question Mark" (?), "Comma" (,), "New Line", or say <strong>"Delete Last"</strong> to erase.
     </div>
 
-    <textarea id="text-box" placeholder="Your text will appear here..."></textarea>
+    <textarea id="text-box" placeholder="Tap 'Start Listening'..."></textarea>
     
     <div class="controls">
-        <div class="row">
-            <label>Voice:</label>
-            <select id="voice-select"><option>Loading voices...</option></select>
+        <div class="full-width">
+            <label>Select Voice</label>
+            <select id="voice-select"><option>Loading...</option></select>
         </div>
 
-        <button id="start-stt">🎤 Start Listening</button>
-        <button id="start-tts">🔊 Play Audio</button>
-        <button id="clear-btn" style="background: #6c757d;">🗑️ Clear Text</button>
+        <button id="start-stt" class="full-width">🎤 Start Listening</button>
+        <button id="start-tts">🔊 Speak</button>
+        <button id="copy-btn" class="btn-secondary">📋 Copy</button>
+        <button id="clear-btn" class="btn-danger full-width">🗑️ Clear All</button>
     </div>
 </div>
 
@@ -48,101 +139,86 @@
     const voiceSelect = document.getElementById('voice-select');
     const sttBtn = document.getElementById('start-stt');
     const clearBtn = document.getElementById('clear-btn');
+    const copyBtn = document.getElementById('copy-btn');
 
-    // --- 1. TEXT TO SPEECH (TTS) LOGIC ---
+    // --- TTS LOGIC ---
     let voices = [];
-    function populateVoiceList() {
+    function populateVoices() {
         voices = window.speechSynthesis.getVoices();
-        voiceSelect.innerHTML = '';
-        voices.forEach((voice, i) => {
-            const option = document.createElement('option');
-            option.textContent = `${voice.name} (${voice.lang})`;
-            option.value = i;
-            voiceSelect.appendChild(option);
-        });
+        voiceSelect.innerHTML = voices
+            .map((v, i) => `<option value="${i}">${v.name}</option>`)
+            .join('');
     }
-
-    // Load voices
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = populateVoiceList;
-    }
-    populateVoiceList();
+    window.speechSynthesis.onvoiceschanged = populateVoices;
+    populateVoices();
 
     document.getElementById('start-tts').onclick = () => {
-        if (textBox.value.trim() === "") return;
-        const utterance = new SpeechSynthesisUtterance(textBox.value);
-        utterance.voice = voices[voiceSelect.value];
-        window.speechSynthesis.speak(utterance);
+        const utter = new SpeechSynthesisUtterance(textBox.value);
+        utter.voice = voices[voiceSelect.value];
+        window.speechSynthesis.speak(utter);
     };
 
-    // --- 2. SPEECH TO TEXT (STT) WITH FIXED PUNCTUATION ---
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = false;
-        recognition.lang = 'en-US';
+    // --- STT LOGIC ---
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.continuous = true;
+    recognition.lang = 'en-US';
 
-        let isRecording = false;
+    let isRecording = false;
 
-        sttBtn.onclick = () => {
-            if (!isRecording) {
-                recognition.start();
-            } else {
-                recognition.stop();
-            }
-        };
-
-        recognition.onstart = () => {
-            isRecording = true;
-            sttBtn.innerText = "🛑 Stop Listening";
-            sttBtn.classList.add('recording');
-        };
-
-        recognition.onend = () => {
-            isRecording = false;
-            sttBtn.innerText = "🎤 Start Listening";
-            sttBtn.classList.remove('recording');
-        };
-
-        recognition.onresult = (event) => {
-            let transcript = event.results[event.results.length - 1][0].transcript;
-            
-            // Apply Punctuation Logic
-            let text = transcript.toLowerCase().trim();
-
-            const replacements = [
-                { regex: /\bquestion mark\b/g, symbol: "?" },
-                { regex: /\bcomma\b/g, symbol: "," },
-                { regex: /\bexclamation mark\b/g, symbol: "!" },
-                { regex: /\bexclamation point\b/g, symbol: "!" },
-                { regex: /\bperiod\b/g, symbol: "." },
-                { regex: /\bfull stop\b/g, symbol: "." },
-                { regex: /\bnew line\b/g, symbol: "\n" }
-            ];
-
-            replacements.forEach(item => {
-                text = text.replace(item.regex, item.symbol);
-            });
-
-            // Clean up: Remove space before punctuation (e.g., "how are you ?" -> "how are you?")
-            text = text.replace(/\s+([?.!,])/g, '$1');
-
-            // Capitalize first letter of the result
-            text = text.charAt(0).toUpperCase() + text.slice(1);
-
-            // Append to existing text
-            const separator = (textBox.value.length > 0 && !textBox.value.endsWith('\n')) ? " " : "";
-            textBox.value += separator + text;
-        };
-    }
-
-    // --- 3. UTILITY ---
-    clearBtn.onclick = () => {
-        textBox.value = "";
+    sttBtn.onclick = () => {
+        if (!isRecording) { recognition.start(); } 
+        else { recognition.stop(); }
     };
 
+    recognition.onstart = () => {
+        isRecording = true;
+        sttBtn.innerText = "🛑 Stop Listening";
+        sttBtn.classList.add('recording');
+    };
+
+    recognition.onend = () => {
+        isRecording = false;
+        sttBtn.innerText = "🎤 Start Listening";
+        sttBtn.classList.remove('recording');
+    };
+
+    recognition.onresult = (event) => {
+        let transcript = event.results[event.results.length - 1][0].transcript;
+        let text = transcript.toLowerCase().trim();
+
+        // Voice Command: DELETE LAST
+        if (text.includes("delete last")) {
+            let sentences = textBox.value.trim().split('. ');
+            sentences.pop();
+            textBox.value = sentences.join('. ') + (sentences.length > 0 ? '. ' : '');
+            return;
+        }
+
+        // Punctuation Mapping
+        const maps = [
+            { r: /\bquestion mark\b/g, s: "?" },
+            { r: /\bcomma\b/g, s: "," },
+            { r: /\bexclamation (mark|point)\b/g, s: "!" },
+            { r: /\bperiod|full stop\b/g, s: "." },
+            { r: /\bnew line\b/g, s: "\n" }
+        ];
+
+        maps.forEach(m => text = text.replace(m.r, m.s));
+        text = text.replace(/\s+([?.!,])/g, '$1'); // Clean spaces
+        text = text.charAt(0).toUpperCase() + text.slice(1); // Capitalize
+
+        const gap = (textBox.value.length > 0 && !textBox.value.endsWith('\n')) ? " " : "";
+        textBox.value += gap + text;
+    };
+
+    // --- UTILITIES ---
+    clearBtn.onclick = () => textBox.value = "";
+    copyBtn.onclick = () => {
+        navigator.clipboard.writeText(textBox.value);
+        const oldText = copyBtn.innerText;
+        copyBtn.innerText = "✅ Copied!";
+        setTimeout(() => copyBtn.innerText = oldText, 2000);
+    };
 </script>
 
 </body>
